@@ -18,12 +18,12 @@
 #define RXD2 25
 #define TXD2 26
 
-#define FIREBASE_HOST "aplikacjaiotinzynier-39c1d.firebaseio.com/" 
-#define FIREBASE_AUTH "SztKy7MQT1Z5rAAJ3FQDnNhmMYhXMUdFvincKOlQ"
+#define FIREBASE_HOST "(FirebaseDBname).firebaseio.com/" 
+#define FIREBASE_AUTH "(Auth KEY)"
 
 
-#define WIFI_SSID "BALMONT_Swiatlowod_2.401D510"
-#define WIFI_PASSWORD "2UEUbxs4"
+#define WIFI_SSID "SSID"
+#define WIFI_PASSWORD "PASSWORD TO WIFI"
 
 //Define FirebaseESP32 data object
 FirebaseData firebaseData;
