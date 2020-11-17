@@ -5,6 +5,7 @@
 #include <Adafruit_BME280.h>
 #include <WiFi.h>
 #include <FirebaseESP32.h>
+#include <math.h>
 
 //Define################--------------------########################
 
@@ -36,7 +37,7 @@ PMS pms(SerialPMS);
 PMS::DATA data;
 Adafruit_BME280 bme; // I2C
 
-uint32_t delayTime = 20000;
+uint32_t delayTime = 10000;
 uint32_t delayMS = 1500;
 
 float prev_pms1;
@@ -73,7 +74,7 @@ void updateDataPms1(float pmsData1)
     Serial.println("Sending -> " + tempString);
     prev_pms1 = pmsData1;
 
-    Firebase.setDouble(firebaseData, path + "/PMS7003/pmsData1", pmsData1);
+    Firebase.setFloat(firebaseData, path + "/pmsData1", pmsData1);
   }
 }
 
@@ -87,7 +88,7 @@ void updateDataPms2(float pmsData2)
     Serial.println("Sending -> " + tempString);
     prev_pms2 = pmsData2;
 
-    Firebase.setDouble(firebaseData, path + "/PMS7003/pmsData2", pmsData2);
+    Firebase.setFloat(firebaseData, path + "/pmsData2", pmsData2);
   }
 }
 
@@ -101,7 +102,7 @@ void updateDataPms10(float pmsData10)
     Serial.println("Sending -> " + tempString);
     prev_pms10 = pmsData10;
 
-    Firebase.setDouble(firebaseData, path + "/PMS7003/pmsData10", pmsData10);
+    Firebase.setDouble(firebaseData, path + "/pmsData10", pmsData10);
   }
 }
 void updateTemp(float tempV)
@@ -109,12 +110,12 @@ void updateTemp(float tempV)
   if (prev_temp != tempV)
   {
     String tempString = "";
-    tempString += (int)tempV;
-    tempString += "C";
+    tempString += tempV;
+    tempString += " C";
     Serial.println("Sending -> " + tempString);
     prev_temp = tempV;
 
-    Firebase.setDouble(firebaseData, path + "/BME280/temperature", tempV);
+    Firebase.setDouble(firebaseData, path + "/temperature", tempV);
   }
 }
 
@@ -128,7 +129,7 @@ void updateHumidity(float humidity)
     Serial.println("Sending -> " + humidityString);
     prev_humidity = humidity;
 
-    Firebase.setDouble(firebaseData, path + "/BME280/humidity", humidity);
+    Firebase.setDouble(firebaseData, path + "/humidity", humidity);
   }
 }
 void updateApprox(float approx)
@@ -141,7 +142,7 @@ void updateApprox(float approx)
     Serial.println("Sending -> " + approxString);
     prev_approx = approx;
 
-    Firebase.setDouble(firebaseData, path + "/BME280/approx", approx);
+    Firebase.setDouble(firebaseData, path + "/approx", approx);
   }
 }
 void updatePressure(float pressure)
@@ -154,10 +155,13 @@ void updatePressure(float pressure)
     Serial.println("Sending -> " + pressureString);
     prev_pressure = pressure;
 
-    Firebase.setDouble(firebaseData, path + "/BME280/pressure", pressure);
+    Firebase.setDouble(firebaseData, path + "/pressure", pressure);
   }
 }
-
+float roundDown(float downgrade){
+  float val = int(downgrade*100+.5);
+  return (int)val/100;
+}
 void printValuesBMEPMS()
 {
   if (pms.read(data) && bme.begin(0x76))
@@ -166,53 +170,54 @@ void printValuesBMEPMS()
 
     float pmsData1 = data.PM_AE_UG_1_0;
     Serial.print("PM 1.0 (ug/m3): ");
-    Serial.println(pmsData1);
+    Serial.print(roundDown(pmsData1));
     Serial.print("ug/m3");
-    updateDataPms1(pmsData1);
+    updateDataPms1(roundDown(pmsData1));
     Serial.println();
 
     float pmsData2 = data.PM_AE_UG_2_5;
+
     Serial.print("PM 2.5 (ug/m3): ");
-    Serial.println(pmsData2);
+    Serial.print(roundDown(pmsData2));
     Serial.print("ug/m3");
-    updateDataPms2(pmsData2);
+    updateDataPms2(roundDown(pmsData2));
     Serial.println();
 
     float pmsData10 = data.PM_AE_UG_10_0;
     Serial.print("PM 10.0 (ug/m3): ");
-    Serial.println(pmsData10);
-    Serial.println(" ug/m3");
-    updateDataPms10(pmsData10);
+    Serial.print(roundDown(pmsData10));
+    Serial.print(" ug/m3");
+    updateDataPms10(roundDown(pmsData10));
     Serial.println();
 
     Serial.println("--------------------------------------------------------");
 
     float tempV = bme.readTemperature();
     Serial.print("Temperature = ");
-    Serial.print(tempV);
+    Serial.print(roundDown(tempV));
     Serial.print(" *C ");
-    updateTemp(tempV);
+    updateTemp(roundDown(tempV));
     Serial.println();
 
     float pressure = bme.readPressure() / 100.0F;
     Serial.print("Pressure = ");
-    Serial.print(pressure);
+    Serial.print(roundDown(pressure));
     Serial.print(" hPa ");
-    updatePressure(pressure);
+    updatePressure(roundDown(pressure));
     Serial.println();
 
     float approx = bme.readAltitude(SEALEVELPRESSURE_HPA);
     Serial.print("Approx. Altitude = ");
-    Serial.print(approx);
+    Serial.print(roundDown(approx));
     Serial.print(" m ");
-    updateApprox(approx);
+    updateApprox(roundDown(approx));
     Serial.println();
 
     float humidity = bme.readHumidity();
     Serial.print("Humidity = ");
-    Serial.print(humidity);
-    Serial.print(" % ");
-    updateHumidity(humidity);
+    Serial.print(roundDown(humidity));
+    Serial.print(" %");
+    updateHumidity(roundDown(humidity));
 
     Serial.println("--------------------------------------------------------");
 
