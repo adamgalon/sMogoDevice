@@ -37,7 +37,7 @@ PMS pms(SerialPMS);
 PMS::DATA data;
 Adafruit_BME280 bme; // I2C
 
-uint32_t delayTime = 10000;
+uint32_t delayTime = 1000;
 uint32_t delayMS = 1500;
 
 float prev_pms1;
@@ -216,7 +216,7 @@ void printValuesBMEPMS()
     float humidity = bme.readHumidity();
     Serial.print("Humidity = ");
     Serial.print(roundDown(humidity));
-    Serial.print(" %");
+    Serial.println(" %");
     updateHumidity(roundDown(humidity));
 
     Serial.println("--------------------------------------------------------");
